@@ -10,9 +10,9 @@ import medicineImg from '../asset/medicine.png';
 
 const DonorPage = () => {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gray-50">
-      <div className="p-4">
-        <Header userType="Donor" switchTo="Receiver" bikeImage={bikeImg} />
+    <div className="min-h-screen flex flex-col bg-gray-50 ">
+      <Header userType="Donor" switchTo="Receiver" bikeImage={bikeImg} />
+      <div className="p-4 mt-4 flex-grow">        
         <DonateCard />
         <MedicineCard
           name="Medicine Name"

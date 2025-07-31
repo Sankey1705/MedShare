@@ -1,7 +1,7 @@
 import React from 'react';
 
 const MedicineCard = ({ name, description, tag, expiry, image }) => (
-  <div className="bg-white p-4 rounded-xl shadow mb-4 border">
+  <div className="bg-white px-4 pb-4 rounded-xl shadow mb-4 border">
     <div className="flex items-center">
       <img src={image} alt="medicine" className="w-16 h-16 mr-4" />
       <div>
