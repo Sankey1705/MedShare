@@ -7,6 +7,7 @@ import ProgressSection from '../component/ProgressSection';
 import BottomNav from '../component/BottomNav';
 import bikeImg from '../asset/donor_bike.png'; // Replace with actual image path
 import medicineImg from '../asset/medicine.png';
+import MedicineCardArrving from '../component/MedicineCardArrving';
 
 const DonorPage = () => {
   return (
@@ -14,11 +15,11 @@ const DonorPage = () => {
       <Header userType="Donor" switchTo="Receiver" bikeImage={bikeImg} />
       <div className="p-4 mt-4 flex-grow">        
         <DonateCard />
-        <MedicineCard
+        <MedicineCardArrving
           name="Medicine Name"
           description="Necessitati Dignissimos Dignissimos Reprehender Necessitati"
           tag="Liver Medicines"
-          expiry="21/05/2027"
+          expiry="20/05/2027"
           image={medicineImg}
         />
         <ProgressSection />

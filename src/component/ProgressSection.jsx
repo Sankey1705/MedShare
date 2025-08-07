@@ -1,4 +1,5 @@
 import React from 'react';
+import ProgresBar from './ProgresBar';
 
 const ProgressSection = () => (
   <div className="bg-white p-4 rounded-xl shadow mb-4">
@@ -15,13 +16,8 @@ const ProgressSection = () => (
         <p className="text-xs text-gray-500">people got help</p>
       </div>
     </div>
-    <div>
-      <p className="text-sm mb-1">Donate 12 more medicine to receive gift</p>
-      <p className="text-sm font-semibold">12 / 30</p>
-      <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
-        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '40%' }} />
-      </div>
-    </div>
+    
+    <ProgresBar width='12rem' height='0.6rem' progress={40}/>
   </div>
 );
 
