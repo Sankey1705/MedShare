@@ -1,14 +1,30 @@
 // src/pages/PickupDetailsPage.jsx
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import MedicineCardArrving from "../component/MedicineCardArrving";
+import MedicineCard from "../component/MedicineCard";
 import UserDetailsCard from "../component/UserDetailsCard";
-import medicineImg from "../asset/medicine.png"; // fallback if no image
+import medicineImg from "../asset/medicine.png";
 
 const PickupDetailsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const medicine = location.state || {}; // ✅ dynamic data passed from MedOverview
+  const medicine = location.state || {};
+
+  const handleBackToDonor = () => {
+    // ✅ Save final medicine details in localStorage with status
+    const medicineData = {
+      name: medicine.name || "Medicine Name",
+      description: medicine.description || "No description provided",
+      tag: medicine.category || "General",
+      expiry: medicine.expiry || "N/A",
+      image: medicine.scannedImage || medicineImg,
+      status: "Arriving Tomorrow For Pickup", // ✅ use status
+    };
+
+    localStorage.setItem("medicineData", JSON.stringify(medicineData));
+
+    navigate("/donor");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -20,30 +36,29 @@ const PickupDetailsPage = () => {
         <h2 className="text-xl font-semibold">Pickup Details</h2>
       </div>
 
-      {/* Medicine Details (dynamic, arriving style) */}
-      <MedicineCardArrving
+      {/* Medicine Details */}
+      <MedicineCard
         name={medicine.name || "Medicine Name"}
         description={medicine.description || "No description provided"}
         tag={medicine.category || "General"}
         expiry={medicine.expiry || "N/A"}
-        image={
-          medicine.receipt
-            ? URL.createObjectURL(medicine.receipt)
-            : medicineImg
-        }
-        status="Arriving Tomorrow For Pickup"
+        image={medicine.scannedImage || medicineImg}
+        status="Arriving Tomorrow For Pickup" // ✅ use status prop
       />
 
       {/* User Details */}
       <UserDetailsCard
-        name="John Doe"
-        phone="+91 98765 43210"
-        address="Zero Miles, Near Zero Miles Freedom Park Metro Station, Sitaburdi, 440022, Nagpur"
+        name={medicine.userName || "John Doe"}
+        phone={medicine.phone || "+91 98765 43210"}
+        address={
+          medicine.address ||
+          "Zero Miles, Near Zero Miles Freedom Park Metro Station, Sitaburdi, 440022, Nagpur"
+        }
       />
 
       {/* Back Button */}
       <button
-        onClick={() => navigate("/donor")}
+        onClick={handleBackToDonor}
         className="w-full bg-blue-500 text-white font-medium rounded-full py-3 hover:bg-blue-600 transition mt-6"
       >
         Back to Donor Page

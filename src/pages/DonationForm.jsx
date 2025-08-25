@@ -24,7 +24,7 @@ const DonationForm = () => {
     e.preventDefault();
     console.log("Form Data:", formData);
 
-    // ✅ send data dynamically to PickupDetailsPage
+    // ✅ pass data to Scanner page
     navigate("/scanner", { state: formData });
   };
 
@@ -124,6 +124,18 @@ const DonationForm = () => {
               <p className="text-xs text-gray-400">Click here to upload</p>
             </div>
           </label>
+
+          {/* ✅ Preview uploaded image */}
+          {formData.receipt && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-1">Preview:</p>
+              <img
+                src={URL.createObjectURL(formData.receipt)}
+                alt="Uploaded Receipt"
+                className="w-32 h-32 object-cover rounded-lg border"
+              />
+            </div>
+          )}
         </div>
 
         {/* Button */}

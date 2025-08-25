@@ -1,4 +1,4 @@
-// src/pages/ConfirmPickupPage.jsx
+// src/pages/MedOverview.jsx
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MedicineCard from "../component/MedicineCard";
@@ -15,7 +15,6 @@ const MedOverview = () => {
   };
 
   const handleConfirmPickup = () => {
-    alert("Pickup Confirmed ✅");
     navigate("/pickup-details", { state: formData }); // ✅ pass data to next page
   };
 
@@ -30,13 +29,15 @@ const MedOverview = () => {
       </div>
 
       {/* Medicine Info */}
-      <MedicineCard
-        name={formData.name || "Medicine Name"}
-        description={formData.description || "Medicine description goes here"}
-        tag={formData.category || "General"}
-        expiry={formData.expiry || "DD/MM/YYYY"}
-        image={formData.scannedImage || medicineImg} // ✅ scanned image from Scanner
-      />
+      <div className="bg-white rounded-xl shadow border p-4 mb-4">
+        <MedicineCard
+          name={formData.name || "Medicine Name"}
+          description={formData.description || "Medicine description goes here"}
+          tag={formData.category || "General"}
+          expiry={formData.expiry || "DD/MM/YYYY"}
+          image={formData.scannedImage || medicineImg} // ✅ scanned image from Scanner
+        />
+      </div>
 
       {/* User Details */}
       <UserDetailsCard
