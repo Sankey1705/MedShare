@@ -45,7 +45,7 @@ const DonorPage = () => {
 
         <ProgressSection />
       </div>
-      <BottomNav />
+      <BottomNav userType="Donor" />
     </div>
   );
 };

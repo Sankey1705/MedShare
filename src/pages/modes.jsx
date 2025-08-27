@@ -40,13 +40,13 @@ const Modes = () => {
               <span className="text-lg font-medium">Donate Medicines</span>
             </div>
             <img
-              src={bike_modes} // replace with your image path or component
+              src={bike_modes} 
               alt="Donate"
               className="w-40 h-20"
             />
           </div>
 
-          {/* Get Medicines Option */}
+          
           <div
             onClick={() => setSelectedOption("get")}
             className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -70,7 +70,7 @@ const Modes = () => {
               <span className="text-lg font-medium">Get Medicines</span>
             </div>
             <img
-              src={bike_modes} // reuse or swap image
+              src={bike_modes} 
               alt="Get"
               className="w-40 h-20"
             />
