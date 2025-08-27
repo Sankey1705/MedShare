@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MedicineCard from "../component/MedicineCard";
-import UserDetailsCard from "../component/UserDetailsCard";
+import EditUserDetails from "../component/EditUserDetails";
 import medicineImg from "../asset/medicine.png"; // fallback image
 
 const MedOverview = () => {
@@ -40,7 +40,7 @@ const MedOverview = () => {
       </div>
 
       {/* User Details */}
-      <UserDetailsCard
+      <EditUserDetails
         name={formData.userName || "John Doe"}
         phone={formData.phone || "+91 98765 43210"}
         address={

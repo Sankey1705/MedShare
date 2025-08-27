@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MedicineCard from "../component/MedicineCard";
-import UserDetailsCard from "../component/UserDetailsCard";
+import EditUserDetails from "../component/EditUserDetails";
 import medicineImg from "../asset/medicine.png";
 
 const PickupDetailsPage = () => {
@@ -47,7 +47,7 @@ const PickupDetailsPage = () => {
       />
 
       {/* User Details */}
-      <UserDetailsCard
+      <EditUserDetails
         name={medicine.userName || "John Doe"}
         phone={medicine.phone || "+91 98765 43210"}
         address={

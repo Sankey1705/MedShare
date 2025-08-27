@@ -7,12 +7,12 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Modes from './pages/modes';
 import DonorPage from './pages/DonorPage';
 import RewardsPage from './pages/RewardsPages';
-import ProfilePage from './pages/ProfilePage';
 import DonationForm from './pages/DonationForm';
 import Scanner from './pages/Scanner';
 import MedOverview from './pages/MedOverview';
 import EditDetailsPage from './pages/EditDetailsPage';
 import PickupDetailsPage from './pages/PickupDetailsPage';
+import ProfilePage from './pages/ProfilePage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -21,8 +21,8 @@ root.render(
       <Route path='/'  element={<Modes/>} />
       <Route path='/donor'  element={<DonorPage/>} />
       <Route path="/rewards" element={<RewardsPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
       <Route path='/donation-form' element={<DonationForm/>} />
+      <Route path="/profile" element={<ProfilePage/>} />
       <Route path="/Scanner" element={<Scanner />} />
       <Route path="/MedOverview" element={<MedOverview />} />
       <Route path="/edit-details" element={<EditDetailsPage />} />

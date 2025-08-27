@@ -1,7 +1,7 @@
-    // src/component/UserDetailsCard.jsx
+    // src/component/EditUserDetails.jsx
 import React from "react";
 
-const UserDetailsCard = ({ name, phone, address, onEdit }) => {
+const EditUserDetails = ({ name, phone, address, onEdit }) => {
   return (
     <div className="bg-white rounded-2xl shadow p-4 mb-4 border">
       <h3 className="text-base font-semibold mb-3">Your Details</h3>
@@ -31,4 +31,4 @@ const UserDetailsCard = ({ name, phone, address, onEdit }) => {
   );
 };
 
-export default UserDetailsCard;
+export default EditUserDetails;
