@@ -14,9 +14,17 @@ import ProfilePage from "./pages/ProfilePage";
 import ReceiverPage from "./recivers/ReciversPages/ReciverPage";
 import MedicineCardReciver from "./recivers/ReciversComponents/MedicineCardReciver";
 
+//backend pages import signup login
+
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import ProtectedRoute from "./component/ProtectedRoute";
+
 // Firebase
 import { db, auth, storage } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
+import ProfileForm from "./pages/ProfileForm";
+
 
 function App() {
 
@@ -38,11 +46,28 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Modes />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/MedShare" element={<Modes />} />
       <Route path="/donor" element={<DonorPage />} />
       <Route path="/rewards" element={<RewardsPage />} />
-      <Route path="/donation-form" element={<DonationForm />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route
+        path="/donation-form"
+        element={
+          <ProtectedRoute>
+            <DonationForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/profile-form" element={<ProfileForm />} />
       <Route path="/scanner" element={<Scanner />} />
       <Route path="/medoverview" element={<MedOverview />} />
       <Route path="/edit-details" element={<EditDetailsPage />} />

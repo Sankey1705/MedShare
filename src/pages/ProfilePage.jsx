@@ -1,31 +1,27 @@
-// src/pages/ProfilePage.jsx
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import ProfileCard from "../component/ProfileCard";
 import BottomNav from "../component/BottomNav";
-import { UserContext } from "../context/UserContext"; // 👈 global user info
+import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
-  // Get user from context (fallback if not connected to backend yet)
-  const { user } = useContext(UserContext) || {
-    user: {
-      name: "John Doe",
-      phone: "+91 98654 13204",
-      email: "johndoe@gmail.com",
-      address:
-        "44, Kingsway Rd, near Kasturchand Park, Mohan Nagar, Nagpur, Maharashtra 440001",
-      profilePic: "/Profile.png",
-      role: "Donor", // 👈 default role
-    },
-  };
+  const { user, loading } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user && !user.profileCompleted) {
+      navigate("/profile-form"); // if not complete, go fill form
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>Please login</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      {/* Header */}
       <h2 className="text-xl font-semibold text-center mb-6">
         {user.role} Profile
       </h2>
-
-      {/* Profile Card */}
       <ProfileCard user={user} />
 
       {/* Other Options */}
@@ -57,10 +53,16 @@ const ProfilePage = () => {
           <p className="py-2 text-red-500 font-medium">Log Out</p>
         </div>
       </div>
-
+      
       <BottomNav />
     </div>
   );
 };
 
 export default ProfilePage;
+
+
+
+
+
+
