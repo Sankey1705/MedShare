@@ -1,7 +1,7 @@
 // src/App.js
 import React from "react";
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import Modes from "./pages/modes";
 import DonorPage from "./pages/DonorPage";
 import RewardsPage from "./pages/RewardsPages";
@@ -17,13 +17,20 @@ import MedicineCardReciver from "./recivers/ReciversComponents/MedicineCardReciv
 //backend pages import signup login
 
 import Signup from "./pages/Signup";
-import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
 import ProtectedRoute from "./component/ProtectedRoute";
 
 // Firebase
 import { db, auth, storage } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
-import ProfileForm from "./pages/ProfileForm";
+import ProfileForm from "./pages/EditProfile";
+import GetStarted from "./pages/GetStarted";
+import OtpVerification from "./pages/OtpVerification";
+import EditProfile from "./pages/EditProfile";
+
+
+
+
 
 
 function App() {
@@ -44,11 +51,18 @@ function App() {
   }, []);
 
 
+  
+
+
   return (
     <Routes>
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/MedShare" element={<Modes />} />
+      <Route path="/MedShare" element={<GetStarted />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/otp" element={<OtpVerification />} />
+      <Route path="/Modes" element={<Modes />} />
+        <Route path="*" element={<Navigate to="/signin" replace />} />
+      <Route path="/Modes" element={<Modes />} />
       <Route path="/donor" element={<DonorPage />} />
       <Route path="/rewards" element={<RewardsPage />} />
       <Route
@@ -67,7 +81,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/profile-form" element={<ProfileForm />} />
+      <Route path="/EditProfile" element={<EditProfile />} />
       <Route path="/scanner" element={<Scanner />} />
       <Route path="/medoverview" element={<MedOverview />} />
       <Route path="/edit-details" element={<EditDetailsPage />} />

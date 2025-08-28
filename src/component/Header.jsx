@@ -16,7 +16,7 @@ const Header = ({ userType, switchTo, bikeImage }) => {
         <h2 className="text-xl font-semibold text-black">{userType}</h2>
         <p
           className="text-black text-sm cursor-pointer underline"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/Modes')}
         >
           Switch to {switchTo} &gt;
         </p>

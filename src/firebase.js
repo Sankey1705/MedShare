@@ -14,7 +14,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAKAU-j-h5_5InETparcyhkfsBTFpqxWBE",
   authDomain: "medshare-d0aa0.firebaseapp.com",
   projectId: "medshare-d0aa0",
-  storageBucket: "medshare-d0aa0.firebasestorage.app",
+  storageBucket: "medshare-d0aa0.appspot.com",
   messagingSenderId: "831990210036",
   appId: "1:831990210036:web:a43c741a2a90a71fd9ada1"
 };
@@ -23,8 +23,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Services
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-export { auth, db, storage };
+export default app;
