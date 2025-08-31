@@ -15,7 +15,7 @@ const EditProfile = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch profile from Firestore or Auth
+  // ✅ Fetch profile from Firestore or fallback to Auth
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -50,19 +50,23 @@ const EditProfile = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle photo change → convert to Base64 string
+  // ✅ Handle photo upload with 10KB restriction
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 10 * 1024) {  // 10KB check
+        alert("File size must be less than 10KB.");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, photoURL: reader.result })); // base64 saved
+        setForm((prev) => ({ ...prev, photoURL: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // ✅ Save profile (Firestore only)
+  // ✅ Save profile to Firestore
   const handleSave = async (e) => {
     e.preventDefault();
     try {
@@ -74,8 +78,8 @@ const EditProfile = () => {
         {
           name: form.name,
           address: form.address,
-          email: form.email || auth.currentUser.email,
-          phone: form.phone || auth.currentUser.phoneNumber,
+          email: auth.currentUser.email,
+          phone: auth.currentUser.phoneNumber,
           photoURL: form.photoURL || "/default-avatar.png",
           profileCompleted: true,
         },
@@ -119,7 +123,7 @@ const EditProfile = () => {
               />
             </label>
           </div>
-          <p className="mt-2 text-sm text-gray-600">Change Profile Photo</p>
+          <p className="mt-2 text-sm text-gray-600">Change Profile Photo (Max 10KB)</p>
         </div>
 
         {/* Name */}
@@ -146,19 +150,18 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Email */}
+        {/* Email (read-only) */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Change Mail ID</label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <input
             name="email"
             value={form.email}
-            onChange={handleChange}
-            placeholder="Enter Email"
-            className="w-full mt-1 px-4 py-3 border rounded-xl focus:outline-none"
+            readOnly
+            className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-100 text-gray-500"
           />
         </div>
 
-        {/* Phone */}
+        {/* Phone (read-only) */}
         <div>
           <label className="text-sm font-medium text-gray-700">Phone Number</label>
           <input

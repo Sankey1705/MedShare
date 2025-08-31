@@ -36,10 +36,9 @@ const ProfilePage = () => {
     });
 
     return () => unsub();
-  }, [navigate]);
+  }, [navigate, auth.currentUser]);
 
-  if (loading) return <p className="p-6">Loading...</p>;
-  if (!userData) return <p className="p-6">Loading profile...</p>;
+  if (loading || !userData) return <p className="p-6">Loading profile...</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -50,7 +49,7 @@ const ProfilePage = () => {
         </h2>
       </div>
 
-      {/* Profile Card — always fed consistent data */}
+      {/* Profile Card */}
       <ProfileCard userData={userData} />
 
       {/* Other Options */}
@@ -61,7 +60,6 @@ const ProfilePage = () => {
           <p className="py-2">Offers</p>
         </div>
 
-        {/* Role-Specific Section */}
         {userData.role === "Donor" && (
           <div className="bg-white rounded-2xl shadow p-4 border">
             <p className="text-green-600 font-medium">🎁 Donor Bonus Rewards</p>

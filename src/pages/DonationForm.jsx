@@ -1,64 +1,83 @@
+// src/pages/DonationForm.jsx
 import React, { useState } from "react";
 import { FiCalendar } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { db, auth } from "../firebase"; // ✅ import auth
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth"; // ✅ auth hook
 
 const DonationForm = () => {
   const navigate = useNavigate();
+  const [currentUser] = useAuthState(auth); // ✅ get logged-in user
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     expiry: "",
     category: "",
-    receipt: null,
+    receiptBase64: "", // store base64 instead of File
   });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value,
-    });
+
+    if (files && files[0]) {
+      const file = files[0];
+
+      // Restrict size to 10 KB
+      if (file.size > 10 * 1024) {
+        alert("File size must be less than 10 KB!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, receiptBase64: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+    try {
+      // ✅ Save donation in Firestore
+      const docRef = await addDoc(collection(db, "donations"), {
+        ...formData,
+        createdAt: serverTimestamp(),
+        userId: currentUser ? currentUser.uid : null, // ✅ store UID
+      });
 
-    // ✅ pass data to Scanner page
-    navigate("/scanner", { state: formData });
+      navigate("/scanner", { state: { docId: docRef.id, ...formData } });
+    } catch (error) {
+      console.error("Error saving donation:", error);
+      alert("Failed to save donation.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
-      {/* Header */}
       <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-3 text-xl">
-          ←
-        </button>
+        <button onClick={() => navigate(-1)} className="mr-3 text-xl">←</button>
         <h2 className="text-xl font-semibold">Donate Medicine</h2>
       </div>
 
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow p-5 space-y-4 border"
-      >
-        {/* Name */}
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow p-5 space-y-4 border">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Name of medicine
-          </label>
+          <label className="block text-sm font-medium mb-1">Name of medicine</label>
           <input
             type="text"
             name="name"
             placeholder="Enter medicine name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border rounded-xl px-3 py-2"
+            required
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
@@ -67,82 +86,52 @@ const DonationForm = () => {
             value={formData.description}
             onChange={handleChange}
             rows="3"
-            className="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border rounded-xl px-3 py-2"
+            required
           ></textarea>
         </div>
 
-        {/* Expiration Date */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Date Of Expiration
-          </label>
+          <label className="block text-sm font-medium mb-1">Date Of Expiration</label>
           <div className="relative">
             <input
               type="date"
               name="expiry"
               value={formData.expiry}
               onChange={handleChange}
-              className="w-full border rounded-xl px-3 py-2 pr-10 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full border rounded-xl px-3 py-2 pr-10"
+              required
             />
             <FiCalendar className="absolute right-3 top-3 text-gray-500" />
           </div>
         </div>
 
-        {/* Category */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Select Category
-          </label>
+          <label className="block text-sm font-medium mb-1">Select Category</label>
           <input
             type="text"
             name="category"
             placeholder="Enter category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border rounded-xl px-3 py-2"
+            required
           />
         </div>
 
-        {/* Receipt Upload */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Upload receipt of medicines
-          </label>
-          <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer hover:bg-gray-50">
-            <input
-              type="file"
-              name="receipt"
-              accept="image/*"
-              className="hidden"
-              onChange={handleChange}
+          <label className="block text-sm font-medium mb-1">Upload receipt of medicines</label>
+          <input type="file" name="receipt" accept="image/*" onChange={handleChange} />
+          {formData.receiptBase64 && (
+            <img
+              src={formData.receiptBase64}
+              alt="Preview"
+              className="mt-2 w-32 h-32 object-cover rounded-lg border"
             />
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 text-blue-500 flex items-center justify-center rounded-lg mb-2">
-                📄
-              </div>
-              <p className="text-sm text-gray-500">Receipt Image</p>
-              <p className="text-xs text-gray-400">Click here to upload</p>
-            </div>
-          </label>
-
-          {/* ✅ Preview uploaded image */}
-          {formData.receipt && (
-            <div className="mt-3">
-              <p className="text-xs text-gray-500 mb-1">Preview:</p>
-              <img
-                src={URL.createObjectURL(formData.receipt)}
-                alt="Uploaded Receipt"
-                className="w-32 h-32 object-cover rounded-lg border"
-              />
-            </div>
           )}
         </div>
 
-        {/* Button */}
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white font-medium rounded-full py-3 hover:bg-blue-600 transition"
-        >
+        <button type="submit" className="w-full bg-blue-500 text-white font-medium rounded-full py-3 hover:bg-blue-600 transition">
           Next
         </button>
       </form>

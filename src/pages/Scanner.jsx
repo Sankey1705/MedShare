@@ -1,6 +1,8 @@
 // src/pages/ScanUpload.jsx
 import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { db } from "../firebase"; // ✅ Firestore
+import { doc, updateDoc } from "firebase/firestore";
 
 const Scanner = () => {
   const videoRef = useRef(null);
@@ -8,7 +10,7 @@ const Scanner = () => {
   const [capturedImage, setCapturedImage] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const formData = location.state; // ✅ medicine data from DonationForm
+  const formData = location.state; // ✅ data passed from DonationForm (must include docId)
 
   // Start camera
   const startCamera = async () => {
@@ -23,35 +25,60 @@ const Scanner = () => {
     }
   };
 
-  // Capture photo
+  // Capture photo with 10KB restriction
   const capturePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     if (canvas && video) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-      const imageData = canvas.toDataURL("image/png");
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+
+      // compress image → jpeg with quality 0.5
+      let imageData = canvas.toDataURL("image/jpeg", 0.5);
+
+      // check size in bytes
+      const imageSize = Math.round((imageData.length * 3) / 4); // Base64 size formula
+
+      if (imageSize > 10 * 1024) {
+        alert("Image must be less than 10KB. Try retaking closer or smaller frame.");
+        return;
+      }
+
       setCapturedImage(imageData);
     }
   };
 
-  // Simulate upload + navigate with updated data
-  const handleUpload = () => {
+  // Upload to Firestore → Update same document
+  const handleUpload = async () => {
     if (!capturedImage) {
       alert("Please capture a photo first!");
       return;
     }
 
-    // Merge scanned image into formData
-    const updatedData = {
-      ...formData,
-      scannedImage: capturedImage,
-    };
+    if (!formData?.docId) {
+      alert("No donation document found to update.");
+      return;
+    }
 
-    console.log("Uploaded Image with formData:", updatedData);
+    try {
+      // ✅ update existing doc instead of creating new one
+      const donationRef = doc(db, "donations", formData.docId);
+      await updateDoc(donationRef, {
+        scannedImage: capturedImage,
+      });
 
-    navigate("/MedOverview", { state: updatedData }); // ✅ pass data forward
+      console.log("Donation updated with image:", formData.docId);
+      
+
+      // Pass forward with updated data
+      const updatedData = { ...formData, scannedImage: capturedImage };
+      navigate("/MedOverview", { state: updatedData });
+    } catch (error) {
+      console.error("Error updating donation:", error);
+      alert("Failed to save donation.");
+    }
   };
 
   return (
@@ -99,7 +126,7 @@ const Scanner = () => {
               onClick={capturePhoto}
               className="w-full bg-green-500 text-white py-3 rounded-full font-medium"
             >
-              Capture Photo
+              Capture Photo (Max 10KB)
             </button>
           </>
         ) : (

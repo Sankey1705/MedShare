@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
-import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -27,13 +25,29 @@ export default function SignUp() {
     }
     try {
       setLoading(true);
-      // 1) Create Email/Password account
+
+      // 1) Create account
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+
       if (name) {
         await updateProfile(cred.user, { displayName: name });
       }
-      // 2) Store phone temporarily and go to OTP page to link phone
+
+      // 2) Create Firestore profile doc
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name: name || "User",
+        email,
+        phone,
+        address: "",
+        role: "", // default, will update in Modes
+        photoURL: cred.user.photoURL || "/profile-default.png",
+        profileCompleted: false,
+      });
+
+      // 3) Store phone temporarily for OTP step
       sessionStorage.setItem("pending_phone", phone);
+
+      // 4) Navigate to OTP
       navigate("/otp", { replace: true });
     } catch (e) {
       setErr(e.message || "Signup failed");
@@ -45,8 +59,6 @@ export default function SignUp() {
   return (
     <div className="min-h-screen flex flex-col bg-white px-6 pt-8 pb-6">
       <h1 className="text-2xl font-bold">Sign Up</h1>
-
-    
 
       <div className="space-y-3">
         <input
