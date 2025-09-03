@@ -51,7 +51,7 @@ const MedOverview = () => {
   };
 
   const handleConfirmPickup = () => {
-    navigate("/pickup-details", { state: { ...donation, ...user } });
+    navigate("/pickup-details", { state: { docId, ...donation, ...user } });
   };
 
   if (!donation) {
@@ -62,7 +62,9 @@ const MedOverview = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col p-4">
       {/* Header */}
       <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-3 text-xl">←</button>
+        <button onClick={() => navigate(-1)} className="mr-3 text-xl">
+          ←
+        </button>
         <h2 className="text-xl font-semibold">Confirm Pickup</h2>
       </div>
 
@@ -73,18 +75,18 @@ const MedOverview = () => {
           description={donation.description || "Medicine description goes here"}
           tag={donation.category || "General"}
           expiry={donation.expiry || "DD/MM/YYYY"}
-          image={donation.receiptBase64 || medicineImg}
+          image={donation.scannedImage || medicineImg}
         />
       </div>
 
       {/* User Details */}
       {user && (
         <EditUserDetails
-  userId={donation.userId}   // ✅ so we can update Firestore
-  name={user?.name || "John Doe"}
-  phone={user?.phone || "Not provided"}
-  address={user?.address || "No address available"}
-/>
+          userId={donation.userId} // ✅ so we can update Firestore
+          name={user?.name || "John Doe"}
+          phone={user?.phone || "Not provided"}
+          address={user?.address || "No address available"}
+        />
       )}
 
       {/* Confirm Button */}

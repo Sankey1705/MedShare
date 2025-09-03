@@ -1,12 +1,29 @@
 // src/component/EditUserDetails.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-const EditUserDetails = ({ userId, name, phone, address }) => {
+const EditUserDetails = ({ userId, name, phone, address, readOnly = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name, phone, address });
   const [loading, setLoading] = useState(false);
+
+  // ✅ Fetch latest details if userId is provided
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (!userId) return;
+      try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          setFormData(userSnap.data());
+        }
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+    fetchUserDetails();
+  }, [userId]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -110,12 +127,15 @@ const EditUserDetails = ({ userId, name, phone, address }) => {
             <p className="text-sm font-medium">{formData.address}</p>
           </div>
 
-          <button
-            onClick={() => setIsEditing(true)}
-            className="w-full border rounded-full py-2 flex items-center justify-center text-blue-500 border-blue-400 hover:bg-blue-50"
-          >
-            ✏️ Edit Details
-          </button>
+          {/* ✅ Hide edit button if readOnly */}
+          {!readOnly && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="w-full border rounded-full py-2 flex items-center justify-center text-blue-500 border-blue-400 hover:bg-blue-50"
+            >
+              ✏️ Edit Details
+            </button>
+          )}
         </>
       )}
     </div>

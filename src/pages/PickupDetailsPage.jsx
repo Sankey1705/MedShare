@@ -1,6 +1,8 @@
 // src/pages/PickupDetailsPage.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 import MedicineCard from "../component/MedicineCard";
 import EditUserDetails from "../component/EditUserDetails";
 import medicineImg from "../asset/medicine.png";
@@ -8,23 +10,43 @@ import medicineImg from "../asset/medicine.png";
 const PickupDetailsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const medicine = location.state || {};
+  const { docId } = location.state || {};
+
+  const [donation, setDonation] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // ✅ fetch donation + user from Firestore
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!docId) return;
+      try {
+        const donationRef = doc(db, "donations", docId);
+        const donationSnap = await getDoc(donationRef);
+        if (donationSnap.exists()) {
+          const donationData = donationSnap.data();
+          setDonation(donationData);
+
+          if (donationData.userId) {
+            const userRef = doc(db, "users", donationData.userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) setUser({ id: donationData.userId, ...userSnap.data() });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching details:", err);
+      }
+    };
+    fetchData();
+  }, [docId]);
 
   const handleBackToDonor = () => {
-    // ✅ Save final medicine details in localStorage with status
-    const medicineData = {
-      name: medicine.name || "Medicine Name",
-      description: medicine.description || "No description provided",
-      tag: medicine.category || "General",
-      expiry: medicine.expiry || "N/A",
-      image: medicine.scannedImage || medicineImg,
-      status: "Arriving Tomorrow For Pickup", // ✅ use status
-    };
-
-    localStorage.setItem("medicineData", JSON.stringify(medicineData));
-
-    navigate("/donor");
+    navigate("/donor",{ state: { docId, ...donation, ...user }});
   };
+
+  if (!donation) {
+    return <p className="text-center mt-10">Loading pickup details...</p>;
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -38,23 +60,24 @@ const PickupDetailsPage = () => {
 
       {/* Medicine Details */}
       <MedicineCard
-        name={medicine.name || "Medicine Name"}
-        description={medicine.description || "No description provided"}
-        tag={medicine.category || "General"}
-        expiry={medicine.expiry || "N/A"}
-        image={medicine.scannedImage || medicineImg}
-        status="Arriving Tomorrow For Pickup" // ✅ use status prop
+        name={donation.name || "Medicine Name"}
+        description={donation.description || "No description provided"}
+        tag={donation.category || "General"}
+        expiry={donation.expiry || "N/A"}
+        image={donation.scannedImage || medicineImg}
+        status="Arriving Tomorrow For Pickup" // ✅ visible now
       />
 
-      {/* User Details */}
-      <EditUserDetails
-        name={medicine.userName || "John Doe"}
-        phone={medicine.phone || "+91 98765 43210"}
-        address={
-          medicine.address ||
-          "Zero Miles, Near Zero Miles Freedom Park Metro Station, Sitaburdi, 440022, Nagpur"
-        }
-      />
+      {/* User Details (read-only) */}
+      {user && (
+        <EditUserDetails
+          userId={user.id}
+          name={user.name}
+          phone={user.phone}
+          address={user.address}
+          readOnly={true} // ✅ hide edit button
+        />
+      )}
 
       {/* Back Button */}
       <button

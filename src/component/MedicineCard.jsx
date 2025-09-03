@@ -1,3 +1,4 @@
+// src/component/MedicineCard.jsx
 import React from "react";
 
 const MedicineCard = ({
@@ -6,6 +7,7 @@ const MedicineCard = ({
   tag = "General",
   expiry = "N/A",
   image = "https://via.placeholder.com/64", // fallback if no scanned image
+  status, // ✅ optional status
 }) => (
   <div className="flex items-center bg-white rounded-xl shadow p-3 border mb-3">
     {/* Medicine Image (scanned) */}
@@ -28,6 +30,11 @@ const MedicineCard = ({
           Expiration date: {expiry}
         </span>
       </div>
+
+      {/* ✅ Status (only if passed) */}
+      {status && (
+        <p className="mt-2 text-sm font-medium text-green-600">{status}</p>
+      )}
     </div>
   </div>
 );
