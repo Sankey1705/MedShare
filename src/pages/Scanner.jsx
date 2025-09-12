@@ -25,7 +25,7 @@ const Scanner = () => {
     }
   };
 
-  // Capture photo with 10KB restriction
+  // Capture photo → compress to ~50KB
   const capturePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -35,15 +35,13 @@ const Scanner = () => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0);
 
-      // compress image → jpeg with quality 0.5
-      let imageData = canvas.toDataURL("image/jpeg", 0.5);
+      let quality = 0.9; // start high
+      let imageData = canvas.toDataURL("image/jpeg", quality);
 
-      // check size in bytes
-      const imageSize = Math.round((imageData.length * 3) / 4); // Base64 size formula
-
-      if (imageSize > 10 * 1024) {
-        alert("Image must be less than 10KB. Try retaking closer or smaller frame.");
-        return;
+      // Keep reducing quality until under ~50KB
+      while ((imageData.length * 3) / 4 > 50 * 1024 && quality > 0.1) {
+        quality -= 0.05;
+        imageData = canvas.toDataURL("image/jpeg", quality);
       }
 
       setCapturedImage(imageData);
@@ -70,7 +68,6 @@ const Scanner = () => {
       });
 
       console.log("Donation updated with image:", formData.docId);
-      
 
       // Pass forward with updated data
       const updatedData = { ...formData, scannedImage: capturedImage };
@@ -126,7 +123,7 @@ const Scanner = () => {
               onClick={capturePhoto}
               className="w-full bg-green-500 text-white py-3 rounded-full font-medium"
             >
-              Capture Photo (Max 10KB)
+              Capture Photo 
             </button>
           </>
         ) : (

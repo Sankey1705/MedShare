@@ -20,3 +20,9 @@ root.render(
 );
 
 reportWebVitals();
+
+
+/*NOTE:
+there are two home tab but on reviver side navigationg from profile to back on home will navigate us to donor home page.
+decide how to schedule pickup in realtime. and how to assigne date
+*/

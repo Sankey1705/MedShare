@@ -28,13 +28,7 @@ import GetStarted from "./pages/GetStarted";
 import OtpVerification from "./pages/OtpVerification";
 import EditProfile from "./pages/EditProfile";
 
-
-
-
-
-
 function App() {
-
   useEffect(() => {
     const testFirestore = async () => {
       try {
@@ -50,19 +44,16 @@ function App() {
     testFirestore();
   }, []);
 
-
-  
-
-
   return (
     <Routes>
       <Route path="/MedShare" element={<GetStarted />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/otp" element={<OtpVerification />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/otp" element={<OtpVerification />} />
       <Route path="/Modes" element={<Modes />} />
-        <Route path="*" element={<Navigate to="/signin" replace />} />
-      <Route path="/Modes" element={<Modes />} />
+
+      <Route path="*" element={<Navigate to="/signin" replace />} />
+
       <Route path="/donor" element={<DonorPage />} />
       <Route path="/rewards" element={<RewardsPage />} />
       <Route
