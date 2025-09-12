@@ -1,31 +1,45 @@
 // src/pages/ScanUpload.jsx
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { db } from "../firebase"; // ✅ Firestore
+import { db } from "../firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
 const Scanner = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const streamRef = useRef(null);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const formData = location.state; // ✅ data passed from DonationForm (must include docId)
+  const formData = location.state; // includes docId
 
   // Start camera
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+      streamRef.current = stream;
+      if (videoRef.current) videoRef.current.srcObject = stream;
+      setCameraActive(true);
     } catch (err) {
-      console.error("Error accessing camera:", err);
+      console.error("Camera error:", err);
       alert("Unable to access camera. Please allow permission.");
     }
   };
 
-  // Capture photo → compress to ~50KB
+  // Stop camera
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraActive(false);
+  };
+
+  // Capture photo
   const capturePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -34,49 +48,64 @@ const Scanner = () => {
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0);
-
-      let quality = 0.9; // start high
-      let imageData = canvas.toDataURL("image/jpeg", quality);
-
-      // Keep reducing quality until under ~50KB
-      while ((imageData.length * 3) / 4 > 50 * 1024 && quality > 0.1) {
-        quality -= 0.05;
-        imageData = canvas.toDataURL("image/jpeg", quality);
-      }
-
+      const imageData = canvas.toDataURL("image/jpeg"); // no compression
       setCapturedImage(imageData);
+      stopCamera(); // 🔴 stop camera after capture
     }
   };
 
-  // Upload to Firestore → Update same document
+  // Re-click (reset image & start camera again)
+  const retakePhoto = () => {
+    setCapturedImage(null);
+    startCamera();
+  };
+
+  // Upload captured photo
   const handleUpload = async () => {
-    if (!capturedImage) {
-      alert("Please capture a photo first!");
-      return;
-    }
+    if (!capturedImage) return alert("Please capture a photo first!");
+    if (!formData?.docId) return alert("No donation document found!");
 
-    if (!formData?.docId) {
-      alert("No donation document found to update.");
-      return;
-    }
-
+    setLoading(true);
     try {
-      // ✅ update existing doc instead of creating new one
+      // Convert base64 → Blob
+      const res = await fetch(capturedImage);
+      const blob = await res.blob();
+      const file = new File([blob], "scan.jpg", { type: "image/jpeg" });
+
+      // Send to backend → Cloudinary
+      const fd = new FormData();
+      fd.append("file", file);
+      const uploadRes = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await uploadRes.json();
+      if (!data.ok) throw new Error(data.error || "Upload failed");
+
+      // Update Firestore doc with Cloudinary URL
       const donationRef = doc(db, "donations", formData.docId);
       await updateDoc(donationRef, {
-        scannedImage: capturedImage,
+        scannedImageUrl: data.url,
+        cloudinaryId: data.publicId,
       });
 
-      console.log("Donation updated with image:", formData.docId);
+      console.log("Updated Firestore with Cloudinary URL:", data.url);
 
-      // Pass forward with updated data
-      const updatedData = { ...formData, scannedImage: capturedImage };
-      navigate("/MedOverview", { state: updatedData });
-    } catch (error) {
-      console.error("Error updating donation:", error);
-      alert("Failed to save donation.");
+      navigate("/MedOverview", {
+        state: { ...formData, scannedImageUrl: data.url },
+      });
+    } catch (err) {
+      console.error("Error uploading:", err);
+      alert("Upload failed: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Cleanup when leaving page
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -88,7 +117,7 @@ const Scanner = () => {
         <h2 className="text-lg font-semibold">Scan & Upload</h2>
       </div>
 
-      {/* Camera preview */}
+      {/* Camera or captured image */}
       {!capturedImage ? (
         <div className="relative w-full max-w-sm h-80 bg-black rounded-2xl overflow-hidden flex items-center justify-center">
           <video
@@ -97,7 +126,9 @@ const Scanner = () => {
             playsInline
             className="w-full h-full object-cover"
           />
-          <div className="absolute border-4 border-white w-56 h-56 rounded-lg"></div>
+          {cameraActive && (
+            <div className="absolute border-4 border-white w-56 h-56 rounded-lg"></div>
+          )}
         </div>
       ) : (
         <img
@@ -113,26 +144,38 @@ const Scanner = () => {
       <div className="mt-6 space-y-3 w-full max-w-sm">
         {!capturedImage ? (
           <>
-            <button
-              onClick={startCamera}
-              className="w-full bg-blue-500 text-white py-3 rounded-full font-medium"
-            >
-              Start Camera
-            </button>
-            <button
-              onClick={capturePhoto}
-              className="w-full bg-green-500 text-white py-3 rounded-full font-medium"
-            >
-              Capture Photo 
-            </button>
+            {!cameraActive ? (
+              <button
+                onClick={startCamera}
+                className="w-full bg-blue-500 text-white py-3 rounded-full font-medium"
+              >
+                Start Camera
+              </button>
+            ) : (
+              <button
+                onClick={capturePhoto}
+                className="w-full bg-green-500 text-white py-3 rounded-full font-medium"
+              >
+                Capture Photo
+              </button>
+            )}
           </>
         ) : (
-          <button
-            onClick={handleUpload}
-            className="w-full bg-blue-500 text-white py-3 rounded-full font-medium"
-          >
-            Upload & Continue
-          </button>
+          <>
+            <button
+              onClick={handleUpload}
+              disabled={loading}
+              className="w-full bg-blue-500 text-white py-3 rounded-full font-medium"
+            >
+              {loading ? "Uploading..." : "Upload & Continue"}
+            </button>
+            <button
+              onClick={retakePhoto}
+              className="w-full bg-gray-500 text-white py-3 rounded-full font-medium"
+            >
+              Retake Photo
+            </button>
+          </>
         )}
       </div>
     </div>

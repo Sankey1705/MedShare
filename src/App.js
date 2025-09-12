@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import Modes from "./pages/modes";
 import DonorPage from "./pages/DonorPage";
-import RewardsPage from "./pages/RewardsPages";
 import DonationForm from "./pages/DonationForm";
 import Scanner from "./pages/Scanner";
 import MedOverview from "./pages/MedOverview";
@@ -27,6 +26,7 @@ import ProfileForm from "./pages/EditProfile";
 import GetStarted from "./pages/GetStarted";
 import OtpVerification from "./pages/OtpVerification";
 import EditProfile from "./pages/EditProfile";
+import MyDonations from "./pages/MyDonations";
 
 function App() {
   useEffect(() => {
@@ -55,7 +55,7 @@ function App() {
       <Route path="*" element={<Navigate to="/signin" replace />} />
 
       <Route path="/donor" element={<DonorPage />} />
-      <Route path="/rewards" element={<RewardsPage />} />
+      <Route path="/mydonations" element={<MyDonations />} />
       <Route
         path="/donation-form"
         element={
@@ -84,3 +84,4 @@ function App() {
 }
 
 export default App;
+

@@ -1,14 +1,13 @@
 // src/component/BottomNav.jsx
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Wallet, User } from 'lucide-react';
+import { Home, User, HandHeart, ShoppingCart } from 'lucide-react'; // HandHeart & ShoppingCart
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 const BottomNav = () => {
   const [userType, setUserType] = useState(null);
 
-  // ✅ fetch role dynamically from Firestore
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -20,7 +19,7 @@ const BottomNav = () => {
 
         if (userSnap.exists()) {
           const data = userSnap.data();
-          setUserType(data.role); // role: 'Donor' or 'Receiver'
+          setUserType(data.role); // 'Donor' or 'Receiver'
         }
       } catch (err) {
         console.error('Error fetching user role:', err);
@@ -30,21 +29,20 @@ const BottomNav = () => {
     fetchUserRole();
   }, []);
 
-  // ✅ donor nav items
+  // ✅ Donor nav
   const donorNavItems = [
     { to: '/donor', label: 'Home', icon: <Home size={22} /> },
-    { to: '/rewards', label: 'Rewards', icon: <Wallet size={22} /> },
+    { to: '/mydonations', label: 'My Donations', icon: <HandHeart size={22} /> },
     { to: '/profile', label: 'Profile', icon: <User size={22} /> },
   ];
 
-  // ✅ receiver nav items
+  // ✅ Receiver nav
   const receiverNavItems = [
     { to: '/receiver', label: 'Home', icon: <Home size={22} /> },
-    { to: '/rewards', label: 'Rewards', icon: <Wallet size={22} /> },
+    { to: '/my-orders', label: 'My Orders', icon: <ShoppingCart size={22} /> },
     { to: '/profile', label: 'Profile', icon: <User size={22} /> },
   ];
 
-  // ✅ decide which to use
   const navItems =
     userType === 'Receiver'
       ? receiverNavItems
@@ -52,10 +50,7 @@ const BottomNav = () => {
       ? donorNavItems
       : [];
 
-  // ✅ while loading role
-  if (!userType) {
-    return null; // or a loading bar if you want
-  }
+  if (!userType) return null; // optional: loading state
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow z-50 flex justify-around items-center py-2">
@@ -74,7 +69,9 @@ const BottomNav = () => {
             <div className="flex flex-col items-center">
               <div
                 className={`p-1 rounded-full ${
-                  label === 'Rewards' && isActive ? 'bg-blue-100' : ''
+                  (label === 'My Donations' || label === 'My Orders') && isActive
+                    ? 'bg-blue-100'
+                    : ''
                 }`}
               >
                 {icon}

@@ -10,6 +10,7 @@ import MedicineCard from "../component/MedicineCard";
 
 import { db } from "../firebase";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import MyDonationCard from "../component/MyDonationCard";
 
 const DonorPage = () => {
   const [medicine, setMedicine] = useState({
@@ -57,14 +58,14 @@ const DonorPage = () => {
         <DonateCard />
 
         {/* ✅ MedicineCard now always shows latest Firestore donation */}
-        <MedicineCard
-          name={medicine.name}
-          description={medicine.description}
-          tag={medicine.tag}
-          expiry={medicine.expiry}
-          image={medicine.image}
-          status={medicine.arriving} // keep same UI
-        />
+        <MyDonationCard
+            key={donation.id}
+            name={donation.name}
+            description={donation.description}
+            category={donation.category}
+            expiry={donation.expiry}
+            imageUrl={donation.scannedImageUrl} // ✅ stored Cloudinary URL
+          />
 
         <ProgressSection />
       </div>
