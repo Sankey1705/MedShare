@@ -6,20 +6,21 @@ import ProgressSection from "../component/ProgressSection";
 import BottomNav from "../component/BottomNav";
 import bikeImg from "../asset/donor_bike.png";
 import medicineImg from "../asset/medicine.png";
-import MedicineCard from "../component/MedicineCard";
+// ❌ remove MedicineCard
+// import MedicineCard from "../component/MedicineCard";
+import MyDonationCard from "../component/MyDonationCard";
 
 import { db } from "../firebase";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
-import MyDonationCard from "../component/MyDonationCard";
 
 const DonorPage = () => {
-  const [medicine, setMedicine] = useState({
+  const [latestDonation, setLatestDonation] = useState({
     name: "Medicine Name",
     description: "Necessitati Dignissimos Dignissimos Reprehender Necessitati",
-    tag: "General",
+    category: "General",
     expiry: "N/A",
-    image: medicineImg,
-    arriving: "Arriving Tomorrow For Pickup",
+    imageUrl: medicineImg,
+    status: "Arriving Tomorrow For Pickup",
   });
 
   // ✅ Fetch most recent donation from Firestore
@@ -34,13 +35,13 @@ const DonorPage = () => {
           const docSnap = querySnap.docs[0];
           const donation = docSnap.data();
 
-          setMedicine({
+          setLatestDonation({
             name: donation.name || "Medicine Name",
             description: donation.description || "No description provided",
-            tag: donation.category || "General",
+            category: donation.category || "General",
             expiry: donation.expiry || "N/A",
-            image: donation.scannedImage || medicineImg,
-            arriving: "Arriving Tomorrow For Pickup",
+            imageUrl: donation.scannedImageUrl || medicineImg,
+            status: "Arriving Tomorrow For Pickup",
           });
         }
       } catch (err) {
@@ -57,15 +58,15 @@ const DonorPage = () => {
       <div className="p-4 mt-4 flex-grow">
         <DonateCard />
 
-        {/* ✅ MedicineCard now always shows latest Firestore donation */}
+        {/* ✅ Latest donation using MyDonationCard */}
         <MyDonationCard
-            key={donation.id}
-            name={donation.name}
-            description={donation.description}
-            category={donation.category}
-            expiry={donation.expiry}
-            imageUrl={donation.scannedImageUrl} // ✅ stored Cloudinary URL
-          />
+          name={latestDonation.name}
+          description={latestDonation.description}
+          category={latestDonation.category}
+          expiry={latestDonation.expiry}
+          imageUrl={latestDonation.imageUrl}
+          status={latestDonation.status}
+        />
 
         <ProgressSection />
       </div>
