@@ -31,7 +31,7 @@ const MyDonations = () => {
     return () => unsubscribe();
   }, [user]);
 
-  //dont want to use this usinng MyDonationCard
+   console.log("Image URL:", donations.scannedImageUrl);
 
   return (
     
