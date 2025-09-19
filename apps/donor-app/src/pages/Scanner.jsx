@@ -48,13 +48,13 @@ const Scanner = () => {
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0);
-      const imageData = canvas.toDataURL("image/jpeg"); // no compression
+      const imageData = canvas.toDataURL("image/jpeg");
       setCapturedImage(imageData);
-      stopCamera(); // 🔴 stop camera after capture
+      stopCamera();
     }
   };
 
-  // Re-click (reset image & start camera again)
+  // Retake photo
   const retakePhoto = () => {
     setCapturedImage(null);
     startCamera();
@@ -66,30 +66,43 @@ const Scanner = () => {
     if (!formData?.docId) return alert("No donation document found!");
 
     setLoading(true);
+
     try {
-      // Convert base64 → Blob
+      // Convert base64 → Blob → File
       const res = await fetch(capturedImage);
       const blob = await res.blob();
       const file = new File([blob], "scan.jpg", { type: "image/jpeg" });
 
-      // Send to backend → Cloudinary
+      // Prepare FormData
       const fd = new FormData();
       fd.append("file", file);
+
+      console.log("Uploading file to backend...");
+
+      // Send to backend
       const uploadRes = await fetch("http://localhost:5000/upload", {
         method: "POST",
         body: fd,
       });
-      const data = await uploadRes.json();
-      if (!data.ok) throw new Error(data.error || "Upload failed");
 
-      // Update Firestore doc with Cloudinary URL
+      if (!uploadRes.ok) {
+        const text = await uploadRes.text();
+        throw new Error(`Upload failed: ${uploadRes.status} - ${text}`);
+      }
+
+      const data = await uploadRes.json();
+      if (!data.ok) throw new Error(data.error || "Cloudinary upload failed");
+
+      console.log("Upload success:", data);
+
+      // Update Firestore doc
       const donationRef = doc(db, "donations", formData.docId);
       await updateDoc(donationRef, {
         scannedImageUrl: data.url,
         cloudinaryId: data.publicId,
       });
 
-      console.log("Updated Firestore with Cloudinary URL:", data.url);
+      console.log("Firestore updated with Cloudinary URL:", data.url);
 
       navigate("/MedOverview", {
         state: { ...formData, scannedImageUrl: data.url },
@@ -102,7 +115,7 @@ const Scanner = () => {
     }
   };
 
-  // Cleanup when leaving page
+  // Cleanup
   useEffect(() => {
     return () => stopCamera();
   }, []);

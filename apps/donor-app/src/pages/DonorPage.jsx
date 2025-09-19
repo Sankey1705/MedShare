@@ -2,16 +2,13 @@
 import React, { useEffect, useState } from "react";
 import Header from "../component/Header";
 import DonateCard from "../component/DonateCard";
-import ProgressSection from "../component/ProgressSection";
 import BottomNav from "../component/BottomNav";
 import bikeImg from "../asset/donor_bike.png";
 import medicineImg from "../asset/medicine.png";
-// ❌ remove MedicineCard
-// import MedicineCard from "../component/MedicineCard";
 import MyDonationCard from "../component/MyDonationCard";
 
 import { db } from "../firebase";
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs, where } from "firebase/firestore";
 
 const DonorPage = () => {
   const [latestDonation, setLatestDonation] = useState({
@@ -23,7 +20,12 @@ const DonorPage = () => {
     status: "Arriving Tomorrow For Pickup",
   });
 
-  // ✅ Fetch most recent donation from Firestore
+  const [donationCount, setDonationCount] = useState(0);
+
+  // ✅ Replace with logged-in userId from Firebase Auth
+  const userId = "testUserId";
+
+  // ✅ Fetch most recent donation
   useEffect(() => {
     const fetchLatestDonation = async () => {
       try {
@@ -52,13 +54,45 @@ const DonorPage = () => {
     fetchLatestDonation();
   }, []);
 
+  // ✅ Fetch donation count for logged-in user
+  useEffect(() => {
+  const fetchDonationCount = async () => {
+    try {
+      const donationsRef = collection(db, "donations");
+      const q = query(donationsRef, where("userId", "==", userId));
+      const querySnap = await getDocs(q);
+
+      let totalMedicines = 0;
+
+      querySnap.forEach((doc) => {
+        const data = doc.data();
+        // if donation has `quantity` field, add it
+        if (data.quantity) {
+          totalMedicines += data.quantity;
+        } else {
+          // fallback: count as 1 if no quantity field
+          totalMedicines += 1;
+        }
+      });
+
+      setDonationCount(totalMedicines);
+    } catch (err) {
+      console.error("Error fetching donation count:", err);
+    }
+  };
+
+  fetchDonationCount();
+}, [userId]);
+
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header userType="Donor" switchTo="Receiver" bikeImage={bikeImg} />
+
       <div className="p-4 mt-4 flex-grow">
         <DonateCard />
 
-        {/* ✅ Latest donation using MyDonationCard */}
+        {/* ✅ Latest donation */}
         <MyDonationCard
           name={latestDonation.name}
           description={latestDonation.description}
@@ -68,8 +102,21 @@ const DonorPage = () => {
           status={latestDonation.status}
         />
 
-        <ProgressSection />
+        {/* ✅ Progress Section (only donated count) */}
+        <div className="mt-6 bg-white p-4 rounded-2xl shadow-sm border">
+          <h2 className="text-lg font-semibold mb-4">Your Progress</h2>
+          <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 mb-2">
+                <span className="text-blue-500 text-xl">💊</span>
+              </div>
+              <p className="text-2xl font-bold">{donationCount}+</p>
+              <p className="text-sm text-gray-500">Medicines Donated</p>
+            </div>
+          </div>
+        </div>
       </div>
+
       <BottomNav userType="Donor" />
     </div>
   );
