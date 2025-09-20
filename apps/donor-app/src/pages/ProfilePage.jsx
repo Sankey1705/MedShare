@@ -8,13 +8,13 @@ import { auth, db } from "../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
 const ProfilePage = () => {
-  const { user, loading } = useContext(UserContext);
+  const { loading } = useContext(UserContext);
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     if (!auth.currentUser) {
-      navigate("/signin"); // 🔐 redirect if not signed in
+      navigate("/signin");
       return;
     }
 
@@ -22,7 +22,6 @@ const ProfilePage = () => {
       if (snap.exists()) {
         setUserData({ uid: auth.currentUser.uid, ...snap.data() });
       } else {
-        // fallback: use auth user if no Firestore doc yet
         setUserData({
           uid: auth.currentUser.uid,
           name: auth.currentUser.displayName || "User",
@@ -36,17 +35,14 @@ const ProfilePage = () => {
     });
 
     return () => unsub();
-  }, [navigate, auth.currentUser]);
+  }, [navigate]);
 
   if (loading || !userData) return <p className="p-6">Loading profile...</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">
-          {userData.role || "User"} Profile
-        </h2>
+        <h2 className="text-xl font-semibold">{userData.role || "User"} Profile</h2>
       </div>
 
       {/* Profile Card */}
@@ -67,9 +63,7 @@ const ProfilePage = () => {
         )}
         {userData.role === "Receiver" && (
           <div className="bg-white rounded-2xl shadow p-4 border">
-            <p className="text-blue-600 font-medium">
-              🎉 Receiver Special Benefits
-            </p>
+            <p className="text-blue-600 font-medium">🎉 Receiver Special Benefits</p>
           </div>
         )}
 

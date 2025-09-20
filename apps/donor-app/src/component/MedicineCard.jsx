@@ -1,4 +1,4 @@
-// src/component/MedicineCard.jsx
+// src/component/MedicineCard.jsx  remove this comp
 import React from "react";
 
 const MedicineCard = ({

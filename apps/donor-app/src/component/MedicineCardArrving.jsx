@@ -1,5 +1,5 @@
 import React from "react";
-import MedicineCard from "./MedicineCard";
+import MedicineCard from "./MedicineCard";  //remove this compo
 
 const MedicineCardArrving = ({ name, description, tag, expiry, image, status }) => {
   return (

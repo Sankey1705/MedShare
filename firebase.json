@@ -9,5 +9,8 @@
         "responseHeader": ["Content-Type", "Authorization"]
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
   }
 }

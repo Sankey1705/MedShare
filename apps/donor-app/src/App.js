@@ -6,7 +6,7 @@ import Modes from "./pages/modes";
 import DonorPage from "./pages/DonorPage";
 import DonationForm from "./pages/DonationForm";
 import Scanner from "./pages/Scanner";
-import MedOverview from "./pages/MedOverview";
+
 import EditDetailsPage from "./pages/EditDetailsPage";
 import PickupDetailsPage from "./pages/PickupDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -27,6 +27,7 @@ import GetStarted from "./pages/GetStarted";
 import OtpVerification from "./pages/OtpVerification";
 import EditProfile from "./pages/EditProfile";
 import MyDonations from "./pages/MyDonations";
+import ConfirmPickup from "./pages/ConfirmPickup";
 
 function App() {
   useEffect(() => {
@@ -72,9 +73,9 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/EditProfile" element={<EditProfile />} />
+      <Route path="/Edit-Profile" element={<EditProfile />} />
       <Route path="/scanner" element={<Scanner />} />
-      <Route path="/medoverview" element={<MedOverview />} />
+      <Route path="/confirm-pickup" element={<ConfirmPickup />} />
       <Route path="/edit-details" element={<EditDetailsPage />} />
       <Route path="/pickup-details" element={<PickupDetailsPage />} />
       <Route path="/receiver" element={<ReceiverPage />} />

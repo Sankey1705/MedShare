@@ -1,8 +1,7 @@
-// src/components/ProfileCard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPhone, FaEnvelope, FaHome, FaPen } from "react-icons/fa";
-import { auth, db } from "../firebase";
+import { auth, db } from "../firebase"; // ✅ make sure auth is imported
 import { doc, getDoc } from "firebase/firestore";
 
 const ProfileCard = ({ userData }) => {
@@ -10,7 +9,6 @@ const ProfileCard = ({ userData }) => {
   const [profile, setProfile] = useState(userData || null);
   const [loading, setLoading] = useState(!userData);
 
-  // ✅ Fetch from Firestore if no userData passed
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -36,12 +34,9 @@ const ProfileCard = ({ userData }) => {
       }
     };
 
-    if (!userData) {
-      fetchProfile();
-    }
+    if (!userData) fetchProfile();
   }, [userData]);
 
-  // ✅ Show loader if still fetching
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow p-5 border">
@@ -60,28 +55,28 @@ const ProfileCard = ({ userData }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow p-5 border">
-      {/* Profile image and info */}
       <div className="flex items-center space-x-4 mb-4">
         <img
-          src={
-            profile.photoURL ||
-            profile.profilePic || // old key fallback
-            "/profile-default.png"
-          }
+          src={profile.photoURL || "/profile-default.png"}
           alt="Profile"
           className="w-20 h-20 rounded-full object-cover border"
         />
-
         <div>
           <h2 className="text-lg font-semibold">{profile.name}</h2>
-          <div className="flex items-center text-sm text-gray-600">
-            <FaPhone className="mr-2 text-blue-500" />
-            {profile.phone || "No phone"}
-          </div>
+
+          {/* ✅ Email */}
           <div className="flex items-center text-sm text-gray-600">
             <FaEnvelope className="mr-2 text-blue-500" />
-            {profile.email || "No email"}
+            {profile.email || auth.currentUser?.email || "No email"}
           </div>
+
+          {/* ✅ Phone */}
+          <div className="flex items-center text-sm text-gray-600">
+            <FaPhone className="mr-2 text-blue-500" />
+            {profile.phone || auth.currentUser?.phoneNumber || "No phone"}
+          </div>
+
+          {/* ✅ Address */}
           <div className="flex items-center text-sm text-gray-600">
             <FaHome className="mr-2 text-blue-500" />
             {profile.address || "No address"}

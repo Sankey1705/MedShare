@@ -13,10 +13,11 @@ const MyDonations = () => {
   useEffect(() => {
     if (!user) return;
 
-    // ✅ Get user donations, latest first
+    // ✅ Get user donations excluding pending, latest first
     const q = query(
       collection(db, "donations"),
       where("userId", "==", user.uid),
+      where("status", "==", "ready_for_pickup"), // Only include confirmed donations
       orderBy("createdAt", "desc")
     );
 
@@ -31,15 +32,12 @@ const MyDonations = () => {
     return () => unsubscribe();
   }, [user]);
 
-   console.log("Image URL:", donations.scannedImageUrl);
-
   return (
-    
     <div className="p-4 bg-gray-50 min-h-screen">
       <h2 className="text-xl font-semibold text-center mb-6">My Donations</h2>
 
       {donations.length === 0 ? (
-        <p className="text-gray-500 text-center">No donations yet.</p>
+        <p className="text-gray-500 text-center">No confirmed donations yet.</p>
       ) : (
         donations.map((donation) => (
           <MyDonationCard
@@ -48,15 +46,14 @@ const MyDonations = () => {
             description={donation.description}
             category={donation.category}
             expiry={donation.expiry}
-            imageUrl={donation.scannedImageUrl} // ✅ stored Cloudinary URL
+            imageUrl={donation.scannedImageUrl || null}
+            status={donation.status === "ready_for_pickup" ? "Arriving Tomorrow For Pickup" : donation.status}
           />
         ))
       )}
 
       <BottomNav />
-
     </div>
-
   );
 };
 

@@ -1,0 +1,32 @@
+[33m71436d4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: pull origin main --no-rebase: Fast-forward
+[33m56ecec9[m HEAD@{1}: checkout: moving from feat/monorepo-refactor to main
+[33mc9ae15f[m[33m ([m[1;32mfeat/monorepo-refactor[m[33m)[m HEAD@{2}: pull origin main: Merge made by the 'ort' strategy.
+[33m8275568[m HEAD@{3}: commit: made delivery app/ admin and setup tailwind and firebase
+[33mcf8c6ae[m[33m ([m[1;31morigin/feat/monorepo-refactor[m[33m)[m HEAD@{4}: commit: move to apps
+[33m9e727f3[m HEAD@{5}: commit: made react app for delivery
+[33m7a83f99[m HEAD@{6}: commit: moved src into apps/donor-app
+[33m56ecec9[m HEAD@{7}: checkout: moving from main to feat/monorepo-refactor
+[33m56ecec9[m HEAD@{8}: commit: WIP: save before restructure
+[33m69a77c9[m HEAD@{9}: commit: made my donation page add cloudnairy to store image
+[33m6fd9a7c[m HEAD@{10}: commit: add cloudnairy and verify gitignore
+[33m7ea74a7[m HEAD@{11}: commit: made the pickup fetach from firebase and also donorpage| update bottom nav to work based on role from firestore
+[33m136f58c[m HEAD@{12}: commit: images restrict to 10kb|made proper record for data| medoverview page update
+[33mba2672d[m HEAD@{13}: commit: make signup and profile and connected with firebase and saved details but not img as req billing plan
+[33m422efc3[m HEAD@{14}: commit: reverse main
+[33m1382617[m HEAD@{15}: pull origin main: Fast-forward
+[33m0cf21ee[m HEAD@{16}: commit: made index and app clean by using routing in app & connected firebase and made recivers side
+[33m6efddca[m HEAD@{17}: merge newBranch: Fast-forward
+[33m89af71e[m HEAD@{18}: checkout: moving from newBranch to main
+[33m6efddca[m HEAD@{19}: commit: profile page is made, dynamic pending
+[33mdce822c[m[33m ([m[1;31morigin/newBranch[m[33m)[m HEAD@{20}: commit: made profile page in new branch
+[33m89af71e[m HEAD@{21}: checkout: moving from newBranch to newBranch
+[33m89af71e[m HEAD@{22}: checkout: moving from main to newBranch
+[33m89af71e[m HEAD@{23}: checkout: moving from main to main
+[33m89af71e[m HEAD@{24}: commit (merge): made medicinecard dynamic for donor page also
+[33m920badd[m HEAD@{25}: commit: pickup made
+[33m4851c2e[m HEAD@{26}: pull origin main: Merge made by the 'ort' strategy.
+[33m01b3c68[m HEAD@{27}: commit: rewards page is made and bottom navigation is updated for working
+[33meafe13c[m HEAD@{28}: commit: make switch user working and certain css to remove extra gap
+[33m103a8d3[m HEAD@{29}: Branch: renamed refs/heads/master to refs/heads/main
+[33m103a8d3[m HEAD@{31}: commit: Initial commit
+[33me496a06[m HEAD@{32}: commit (initial): Initialize project using Create React App

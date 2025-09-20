@@ -1,7 +1,8 @@
+// src/pages/EditProfile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { Camera } from "lucide-react";
 
 const EditProfile = () => {
@@ -14,19 +15,17 @@ const EditProfile = () => {
     photoURL: "",
   });
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-  // ✅ Fetch profile from Firestore or fallback to Auth
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const uid = auth.currentUser?.uid;
         if (!uid) return;
 
-        const refDoc = doc(db, "users", uid);
-        const snap = await getDoc(refDoc);
-
+        const snap = await getDoc(doc(db, "users", uid));
         if (snap.exists()) {
-          setForm((prev) => ({ ...prev, ...snap.data() }));
+          setForm({ ...snap.data() });
         } else {
           setForm({
             name: auth.currentUser.displayName || "",
@@ -37,7 +36,7 @@ const EditProfile = () => {
           });
         }
       } catch (err) {
-        console.error("Error fetching profile", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -45,28 +44,36 @@ const EditProfile = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Handle input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle photo upload with 10KB restriction
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024) {  // 10KB check
-        alert("File size must be less than 10KB.");
-        return;
+    if (!file) return;
+
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", "profile_images");
+
+    try {
+      const res = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setForm((prev) => ({ ...prev, photoURL: data.url }));
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, photoURL: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      alert("Profile upload failed");
+    } finally {
+      setUploading(false);
     }
   };
 
-  // ✅ Save profile to Firestore
   const handleSave = async (e) => {
     e.preventDefault();
     try {
@@ -78,18 +85,15 @@ const EditProfile = () => {
         {
           name: form.name,
           address: form.address,
-          email: auth.currentUser.email,
-          phone: auth.currentUser.phoneNumber,
-          photoURL: form.photoURL || "/default-avatar.png",
-          profileCompleted: true,
+          photoURL: form.photoURL || "/profile-default.png",
         },
         { merge: true }
       );
 
       navigate("/profile");
     } catch (err) {
-      console.error("Save failed:", err);
-      alert("Error saving profile. Try again.");
+      console.error(err);
+      alert("Failed to save profile");
     }
   };
 
@@ -97,38 +101,29 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
       <div className="flex items-center p-4 border-b">
         <button onClick={() => navigate(-1)} className="text-xl mr-2">←</button>
         <h1 className="text-lg font-semibold">Edit Profile</h1>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSave} className="flex-1 p-6 space-y-6">
-        {/* Profile Photo */}
         <div className="flex flex-col items-center">
           <div className="relative w-32 h-32">
             <img
-              src={form.photoURL || "/default-avatar.png"}
+              src={form.photoURL || "/profile-default.png"}
               alt="profile"
               className="w-32 h-32 rounded-full object-cover border"
             />
             <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full cursor-pointer">
               <Camera className="text-white w-8 h-8" />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoChange}
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
             </label>
           </div>
-          <p className="mt-2 text-sm text-gray-600">Change Profile Photo (Max 10KB)</p>
+          <p className="mt-2 text-sm text-gray-600">{uploading ? "Uploading..." : "Change Profile Photo"}</p>
         </div>
 
-        {/* Name */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Change Name</label>
+          <label className="text-sm font-medium text-gray-700">Name</label>
           <input
             name="name"
             value={form.name}
@@ -138,9 +133,8 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Address */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Change Address</label>
+          <label className="text-sm font-medium text-gray-700">Address</label>
           <input
             name="address"
             value={form.address}
@@ -150,29 +144,26 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Email (read-only) */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Email</label>
-          <input
-            name="email"
-            value={form.email}
-            readOnly
-            className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-100 text-gray-500"
-          />
-        </div>
+  <label className="text-sm font-medium text-gray-700">Email</label>
+  <input
+    name="email"
+    value={form.email || auth.currentUser?.email || ""}
+    readOnly
+    className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-100 text-gray-500"
+  />
+</div>
 
-        {/* Phone (read-only) */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Phone Number</label>
-          <input
-            name="phone"
-            value={form.phone}
-            readOnly
-            className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-100 text-gray-500"
-          />
-        </div>
+  <label className="text-sm font-medium text-gray-700">Phone Number</label>
+  <input
+    name="phone"
+    value={form.phone || auth.currentUser?.phoneNumber || ""}
+    readOnly
+    className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-100 text-gray-500"
+  />
+</div>
 
-        {/* Save */}
         <button
           type="submit"
           className="w-full py-4 rounded-2xl text-white text-lg font-semibold bg-blue-500 active:scale-[0.99] transition"
