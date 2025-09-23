@@ -8,6 +8,11 @@ const EditUserDetails = ({ userId, name, phone, address, readOnly = false }) => 
   const [formData, setFormData] = useState({ name, phone, address });
   const [loading, setLoading] = useState(false);
 
+  // ✅ Keep props in sync with state when parent updates user data
+  useEffect(() => {
+    setFormData({ name, phone, address });
+  }, [name, phone, address]);
+
   // ✅ Fetch latest details if userId is provided
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -16,7 +21,10 @@ const EditUserDetails = ({ userId, name, phone, address, readOnly = false }) => 
         const userRef = doc(db, "users", userId);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-          setFormData(userSnap.data());
+          const data = userSnap.data();
+          setFormData((prev) =>
+            JSON.stringify(prev) !== JSON.stringify(data) ? data : prev
+          );
         }
       } catch (err) {
         console.error("Error fetching user details:", err);

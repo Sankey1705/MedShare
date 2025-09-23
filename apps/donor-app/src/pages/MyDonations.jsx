@@ -17,7 +17,7 @@ const MyDonations = () => {
     const q = query(
       collection(db, "donations"),
       where("userId", "==", user.uid),
-      where("status", "==", "ready_for_pickup"), // Only include confirmed donations
+      where("status", "==", "available"), // Only include confirmed donations
       orderBy("createdAt", "desc")
     );
 
@@ -47,7 +47,7 @@ const MyDonations = () => {
             category={donation.category}
             expiry={donation.expiry}
             imageUrl={donation.scannedImageUrl || null}
-            status={donation.status === "ready_for_pickup" ? "Arriving Tomorrow For Pickup" : donation.status}
+            status={donation.status === "available" ? "Arriving Tomorrow For Pickup" : donation.status}
           />
         ))
       )}

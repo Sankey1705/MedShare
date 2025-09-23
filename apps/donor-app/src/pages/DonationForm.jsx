@@ -30,33 +30,38 @@ const DonationForm = () => {
 
   const handleChange = async (e) => {
   const { name, value, files } = e.target;
-  if (files?.[0]) {
+
+  if (files && files[0]) {
     const file = files[0];
 
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("folder", "medicine_receipts");
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File size must be less than 2MB!");
+      return;
+    }
 
-      const res = await axios.post("http://localhost:5000/upload", fd, {
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("file", file); // 👈 MUST match backend
+      formDataObj.append("folder", "medicine_receipts"); // 👈 use correct folder
+
+      const res = await axios.post("http://localhost:5000/upload", formDataObj, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (res.data?.url) {
-        setFormData((prev) => ({
-          ...prev,
-          receiptUrl: res.data.url,
-          receiptCloudinaryId: res.data.publicId,
-        }));
-      }
-    } catch (err) {
-      console.error("Receipt upload failed:", err);
-      alert("Receipt upload failed, please try again.");
+      setFormData((prev) => ({
+        ...prev,
+        receiptUrl: res.data.url, // 👈 match preview field
+        receiptCloudinaryId: res.data.publicId, // 👈 keep reference if needed
+      }));
+    } catch (error) {
+      console.error("Upload failed:", error.response?.data || error.message);
+      alert("Failed to upload image.");
     }
   } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [name]: value });
   }
 };
+
 
 
   const handleSubmit = async (e) => {

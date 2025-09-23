@@ -4,30 +4,33 @@ import { NavLink } from 'react-router-dom';
 import { Home, User, HandHeart, ShoppingCart } from 'lucide-react'; // HandHeart & ShoppingCart
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from "firebase/auth";
+
 
 const BottomNav = () => {
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    if (currentUser) {
       try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) return;
-
-        const userRef = doc(db, 'users', currentUser.uid);
+        const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
           const data = userSnap.data();
-          setUserType(data.role); // 'Donor' or 'Receiver'
+          setUserType(data.role); // "Donor" or "Receiver"
         }
       } catch (err) {
-        console.error('Error fetching user role:', err);
+        console.error("Error fetching user role:", err);
       }
-    };
+    } else {
+      setUserType(null);
+    }
+  });
 
-    fetchUserRole();
-  }, []);
+  return () => unsubscribe();
+}, []);
 
   // ✅ Donor nav
   const donorNavItems = [

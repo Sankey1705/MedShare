@@ -15,7 +15,6 @@ const PickupDetailsPage = () => {
   const [donation, setDonation] = useState(null);
   const [user, setUser] = useState(null);
 
-  // 🔹 fetch donation + donor info from Firestore
   useEffect(() => {
     const fetchDetails = async () => {
       if (!docId) return;
@@ -43,7 +42,6 @@ const PickupDetailsPage = () => {
     fetchDetails();
   }, [docId]);
 
-  // 🔹 back navigation → return to donor page
   const handleBackToDonor = () => {
     navigate("/donor", { state: { docId, ...donation, ...user } });
   };
@@ -54,15 +52,11 @@ const PickupDetailsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      {/* Header */}
       <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-3 text-xl">
-          ←
-        </button>
+        <button onClick={() => navigate(-1)} className="mr-3 text-xl">←</button>
         <h2 className="text-xl font-semibold">Pickup Details</h2>
       </div>
 
-      {/* Medicine Info */}
       <MedicineCard
         name={donation.name || "Medicine Name"}
         description={donation.description || "No description provided"}
@@ -70,24 +64,22 @@ const PickupDetailsPage = () => {
         expiry={donation.expiry || "N/A"}
         image={donation.scannedImageUrl || medicineImg}
         status={
-          donation.status === "ready_for_pickup"
+          donation.status === "available"
             ? "Arriving Tomorrow For Pickup"
             : "Processing Donation"
         }
       />
 
-      {/* Donor Info */}
       {user && (
         <EditUserDetails
           userId={user.id}
           name={user.name}
           phone={user.phone}
           address={user.address}
-          readOnly={true} // 🔹 only show info, no edit
+          readOnly={true}
         />
       )}
 
-      {/* Back Button */}
       <button
         onClick={handleBackToDonor}
         className="w-full bg-blue-500 text-white font-medium rounded-full py-3 hover:bg-blue-600 transition mt-6"

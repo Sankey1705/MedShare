@@ -86,7 +86,7 @@ const ProfileCard = ({ userData }) => {
 
       {/* Edit Profile Button */}
       <button
-        onClick={() => navigate("/EditProfile")}
+        onClick={() => navigate("/Edit-Profile")}
         className="w-full border rounded-full py-2 flex items-center justify-center text-blue-500 border-blue-400 hover:bg-blue-50"
       >
         <FaPen className="mr-2" /> Edit Profile

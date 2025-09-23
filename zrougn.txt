@@ -1,0 +1,39 @@
+ecommended Firestore Structure
+
+
+/users/{userId}
+  - name
+  - email
+  - phone
+  - role ("Donor", "Receiver", "Delivery", "Admin")
+  - address
+  - photoURL
+  - profileCompleted
+
+/donations/{donationId}
+  - userId (reference to users/{userId})
+  - name (medicine name)
+  - category
+  - description
+  - condition
+  - quantity
+  - expiry
+  - createdAt
+  - cloudinaryId
+  - scannedImageUrl
+  - status ("Available", "Requested", "Delivered", "Expired")
+
+/orders/{orderId}
+  - donationId (reference to donations/{donationId})
+  - receiverId (reference to users/{userId})
+  - deliveryId (reference to users/{userId})
+  - status ("Pending", "PickedUp", "Delivered", "Cancelled")
+  - createdAt
+  - deliveredAt
+
+/inventory/{inventoryId}
+  - medicineName
+  - totalQuantity
+  - expiredCount
+  - activeCount
+  - updatedAt

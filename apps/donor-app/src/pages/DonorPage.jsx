@@ -36,7 +36,7 @@ const DonorPage = () => {
         const q = query(
           donationsRef,
           where("userId", "==", userId),
-          where("status", "==", "ready_for_pickup"), // only confirmed
+          where("status", "==", "available"), // only confirmed
           orderBy("createdAt", "desc"),
           limit(1)
         );
@@ -71,7 +71,7 @@ const DonorPage = () => {
         const q = query(
           donationsRef,
           where("userId", "==", userId),
-          where("status", "==", "ready_for_pickup")
+          where("status", "==", "available")
         );
 
         const querySnap = await getDocs(q);

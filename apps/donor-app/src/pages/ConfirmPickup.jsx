@@ -1,3 +1,4 @@
+// src/pages/ConfirmPickup.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "../firebase";
@@ -21,10 +22,14 @@ const ConfirmPickup = () => {
         const donationRef = doc(db, "donations", docId);
         const snap = await getDoc(donationRef);
         if (snap.exists()) {
-          setDonation(snap.data());
-          const userRef = doc(db, "users", snap.data().userId);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) setUser(userSnap.data());
+          const data = snap.data();
+          setDonation(data);
+
+          if (data.userId) {
+            const userRef = doc(db, "users", data.userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) setUser(userSnap.data());
+          }
         }
       } catch (err) {
         console.error(err);
@@ -34,13 +39,13 @@ const ConfirmPickup = () => {
   }, [docId]);
 
   const handleConfirmPickup = async () => {
-    if (!docId || !donation) return;
+    if (!docId) return;
     try {
       await updateDoc(doc(db, "donations", docId), {
-        status: "ready_for_pickup",
+        status: "available",
         pickupConfirmedAt: new Date(),
       });
-      navigate("/pickup-details", { state: { docId, ...donation, ...user } });
+      navigate("/pickup-details", { state: { docId } });
     } catch (err) {
       console.error(err);
       alert("Failed to confirm pickup");
@@ -52,7 +57,7 @@ const ConfirmPickup = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col p-4">
       <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-3 text-xl">←</button>
+        <button onClick={() => navigate(-1, { state: { draftData: donation } })} className="mr-3 text-xl">←</button>
         <h2 className="text-xl font-semibold">Confirm Pickup</h2>
       </div>
 
@@ -73,6 +78,7 @@ const ConfirmPickup = () => {
           name={user?.name || "John Doe"}
           phone={user?.phone || "Not provided"}
           address={user?.address || "No address available"}
+          readOnly={false}
         />
       )}
 

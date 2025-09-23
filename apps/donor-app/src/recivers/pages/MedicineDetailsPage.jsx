@@ -1,4 +1,3 @@
-// src/pages/MedicineDetailsPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -9,20 +8,21 @@ const MedicineDetailsPage = () => {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("availableMedicines")) || [];
-    const med = saved.find((m) => m.id.toString() === id);
-    setMedicine(
-      med || {
-        id,
-        name: "Medicine Name",
-        description: "Necessitati Dignissimos Dignissimos Reprehender Necessitati",
-        tag: "Liver Medicines",
-        expiry: "21/05/2027",
-        image: "/medicine1.png",
-      }
-    );
+    const med = saved.find((m) => m.id === id);
+    setMedicine(med);
   }, [id]);
 
   if (!medicine) return <p>Loading...</p>;
+
+  const addToCart = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const exists = cart.find((c) => c.id === medicine.id);
+    if (!exists) {
+      cart.push({ ...medicine, qty: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+    navigate("/cart");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 flex flex-col">
@@ -42,7 +42,7 @@ const MedicineDetailsPage = () => {
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">{medicine.name}</h3>
           <span className="border border-blue-400 text-blue-500 px-3 py-1 rounded-full text-xs">
-            {medicine.tag}
+            {medicine.category}
           </span>
         </div>
         <p className="text-sm text-gray-600 mb-2">
@@ -53,12 +53,11 @@ const MedicineDetailsPage = () => {
         </p>
       </div>
 
-      {/* Button */}
       <button
-        onClick={() => alert("Medicine Requested ✅")}
+        onClick={addToCart}
         className="mt-auto bg-blue-500 text-white py-3 rounded-full w-full font-medium"
       >
-        Request Medicine
+        Add to Cart
       </button>
     </div>
   );
